@@ -53,7 +53,8 @@ def main():
     try:
         command_to_run = get_proper_command(vim.eval("a:command_to_run"), current_directory)
     except Exception as e:
-        print(e)
+        import traceback
+        traceback.print_exception(e)
     run_desired_command_for_os(command_to_run)
     vim.command('silent make! | cw')
 
