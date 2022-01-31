@@ -44,9 +44,14 @@ def get_command_to_run_the_current_class(current_dir, current_line, current_buff
 
 
 def get_command_to_run_the_current_method(current_dir, current_line, current_buffer):
+    # raise Exception('here')
+    print('hereeee')
     method_name = get_current_method_and_class(current_line, current_buffer)[1]
+    print("method_name==({})".format(method_name))
     command_to_current_class = get_command_to_run_the_current_class(current_dir, current_line, current_buffer)
+    print("command_to_current_class==({})".format(command_to_current_class))
     cmd = "{}.{}".format(command_to_current_class, method_name)
+    print("cmd==({})".format(cmd))
     write_test_command_to_cache_file(cmd)
     return cmd
 
@@ -132,16 +137,41 @@ def find_path_to_file(current_dir, file_to_look_for, raise_exception=False):
 
 def get_app_name(current_dir):
     apps = get_json_field_from_config_file(current_dir, "app_name")
+    print("apps==({})".format(apps))
     try:
-        return [app.lstrip() for app in apps.split(",") if app.lstrip() in current_dir][0]
+        current_dirs = current_dir.split(os.sep)
+        for app in apps.split(','):
+            if f'/{app.lstrip()}/' in current_dir:
+                return app.lstrip()
+        # result = [
+        #     app.lstrip() for app in apps.split(",")
+        #     if app.lstrip() in current_dir
+        # ][0]
+        print("result==({})".format(result))
+        return result
     except:
         raise NoVimDjango
 
 
+def has_exact_match(array, to_find):
+    for x in array:
+        if x == to_find:
+            return True
+    return False
+
+
 def get_dot_notation_path_to_test(current_dir):
+    print("current_dir==({})".format(current_dir))
     app_name = get_app_name(current_dir)
+    print("app_name==({})".format(app_name))
     if app_name:
-        path_to_tests = current_dir.split(os.sep + app_name + os.sep)[1]
+        # TODO: failing in here index out of range
+        print("current_dir==({})".format(current_dir))
+        print("os.sep + app_name + os.sep==({})".format(os.sep + app_name + os.sep))
+        print("current_dir.split(os.sep + app_name + os.sep)==({})".format(current_dir.split(os.sep + app_name + os.sep)))
+        split = current_dir.split(os.sep + app_name + os.sep)
+        # raise Exception(str(split))
+        path_to_tests = split[1]
         return ".".join(path_to_tests.split("/")[:-1])
     return False
 
@@ -194,3 +224,27 @@ def get_test_runner(current_dir):
     if runner:
         return "{}".format(runner)
     return " "
+
+
+# method_name==(test_related_perils_are_returned_in_coverage_data)
+
+# Error detected while processing function vim_python_test_runner#RunDesiredTests:
+# line   49:
+# Traceback (most recent call last):
+#   File "<string>", line 38, in main
+#   File "<string>", line 21, in get_proper_command
+#   File "<string>", line 10, in <lambda>
+#   File "/Users/patrickmccartney/dotfiles/vim/plugged/vim-python-test-runner/autoload/vim_python_test_r
+# unner.py", line 51, in get_command_to_run_the_current_method
+#     command_to_current_class = get_command_to_run_the_current_class(current_dir, current_line, current
+# _buffer)
+#   File "/Users/patrickmccartney/dotfiles/vim/plugged/vim-python-test-runner/autoload/vim_python_test_r
+# unner.py", line 41, in get_command_to_run_the_current_class
+#     cmd = "{}{}{}".format(get_command_to_run_the_current_file(current_dir), divider, class_name)
+#   File "/Users/patrickmccartney/dotfiles/vim/plugged/vim-python-test-runner/autoload/vim_python_test_r
+# unner.py", line 31, in get_command_to_run_the_current_file
+#     path_to_tests = get_dot_notation_path_to_test(current_dir)
+#   File "/Users/patrickmccartney/dotfiles/vim/plugged/vim-python-test-runner/autoload/vim_python_test_r
+# unner.py", line 149, in get_dot_notation_path_to_test
+#     path_to_tests = current_dir.split(os.sep + app_name + os.sep)[1]
+# IndexError: list index out of range
